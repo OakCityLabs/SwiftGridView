@@ -183,6 +183,10 @@ class SwiftGridViewTests: XCTestCase {
 
         XCTAssertEqual(gridView.collectionView.indexPathsForSelectedItems?.count, expectedRowCounts1)
         
+        let expectedPathsA = (0..<10).map { IndexPath(forSGRow: $0, atColumn: indexA.sgColumn, inSection: indexA.sgSection) }
+        
+        XCTAssertEqual(Set(gridView.indexPathsForSelectedItems), Set(expectedPathsA))
+        
         gridView.selectColumnAtIndexPath(indexB, animated: false, includeHeader: false)
         
         XCTAssertEqual(gridView.selectedHeaderIndexPaths,
@@ -191,6 +195,10 @@ class SwiftGridViewTests: XCTestCase {
                                   inSection: indexA.sgSection)] )
 
         XCTAssertEqual(gridView.collectionView.indexPathsForSelectedItems?.count, expectedRowCounts1 + expectedRowCounts2)
+        
+        let expectedPathsB = (0..<10).map { IndexPath(forSGRow: $0, atColumn: indexB.sgColumn, inSection: indexB.sgSection) }
+
+        XCTAssertEqual(Set(gridView.indexPathsForSelectedItems), Set(expectedPathsA + expectedPathsB))
         
         gridView.selectColumnAtIndexPath(indexB, animated: false, includeHeader: true)
         
@@ -203,6 +211,8 @@ class SwiftGridViewTests: XCTestCase {
                                    inSection: indexB.sgSection)
                        ]))
         
+        XCTAssertEqual(Set(gridView.indexPathsForSelectedItems), Set(expectedPathsA + expectedPathsB))
+
         XCTAssertEqual(gridView.collectionView.indexPathsForSelectedItems?.count, expectedRowCounts1 + expectedRowCounts2)
     }
     
@@ -230,9 +240,16 @@ class SwiftGridViewTests: XCTestCase {
         
         gridView.selectRowAtIndexPath(indexB, animated: false)
         XCTAssertEqual(gridView.collectionView.indexPathsForSelectedItems?.count, 5)
+        let expectedPaths1 = (0..<5).map { IndexPath(forSGRow: indexB.sgRow, atColumn: $0, inSection: indexB.sgSection) }
+        
+        XCTAssertEqual(Set(gridView.indexPathsForSelectedItems), Set(expectedPaths1))
         
         gridView.selectRowAtIndexPath(indexC, animated: false)
+        
+        let expectedPaths2 = (0..<5).map { IndexPath(forSGRow: indexC.sgRow, atColumn: $0, inSection: indexC.sgSection) }
         XCTAssertEqual(gridView.collectionView.indexPathsForSelectedItems?.count, 10)
+        
+        XCTAssertEqual(Set(gridView.indexPathsForSelectedItems), Set(expectedPaths1 + expectedPaths2))
         
         gridView.selectRowAtIndexPath(bogusIndexD, animated: false)
         XCTAssertEqual(gridView.collectionView.indexPathsForSelectedItems?.count, 10)

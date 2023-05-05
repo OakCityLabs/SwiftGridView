@@ -440,7 +440,7 @@ open class SwiftGridView : UIView, UICollectionViewDataSource, UICollectionViewD
     }
     
     /**
-    - Returns: Array of `IndexPath` for all visibile cells.
+    - Returns: Array of `IndexPath` for all visible cells.
     */
     @objc open var indexPathsForVisibleItems: [IndexPath] {
         get {
@@ -449,7 +449,20 @@ open class SwiftGridView : UIView, UICollectionViewDataSource, UICollectionViewD
                 let convertedPath = self.convertCVIndexPathToSGIndexPath(indexPath)
                 indexPaths.append(convertedPath)
             }
-            
+            return indexPaths
+        }
+    }
+    
+    // Will not include selected supplementary view sg index paths,
+    // only sg index paths of selected cells.
+    // Eg, no column headers, but yes row titles
+    @objc open var indexPathsForSelectedItems: [IndexPath] {
+        get {
+            var indexPaths = [IndexPath]()
+            for indexPath in self.collectionView.indexPathsForSelectedItems ?? [] {
+                let convertedPath = self.convertCVIndexPathToSGIndexPath(indexPath)
+                indexPaths.append(convertedPath)
+            }
             return indexPaths
         }
     }
