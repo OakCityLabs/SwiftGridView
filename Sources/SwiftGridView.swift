@@ -301,6 +301,14 @@ open class SwiftGridView : UIView, UICollectionViewDataSource, UICollectionViewD
     fileprivate var selectedSectionFooters: NSMutableDictionary = NSMutableDictionary()
     fileprivate var selectedFooters: NSMutableDictionary = NSMutableDictionary()
     
+    open var selectedHeaderIndexPaths: [IndexPath] {
+        return selectedHeaders.allKeys.compactMap {
+            guard (selectedHeaders[$0] as? Bool) == true else {
+                return nil
+            }
+            return $0 as? IndexPath
+        }
+    }
     
     // MARK: - Layout Subviews
     
@@ -516,6 +524,14 @@ open class SwiftGridView : UIView, UICollectionViewDataSource, UICollectionViewD
             let convertedPath = self.reverseIndexPathConversion(indexPath)
             self.collectionView.deselectItem(at: convertedPath, animated: animated)
         }
+    }
+    
+    open func selectHeaderAtIndexPath(_ indexPath: IndexPath) {
+        self.selectReusableViewOfKind(SwiftGridElementKindHeader, atIndexPath: indexPath)
+    }
+    
+    open func deselectHeaderAtIndexPath(_ indexPath: IndexPath) {
+        self.deselectReusableViewOfKind(SwiftGridElementKindHeader, atIndexPath: indexPath)
     }
     
     /// Select the section header at the provided indexPath
@@ -1052,7 +1068,30 @@ open class SwiftGridView : UIView, UICollectionViewDataSource, UICollectionViewD
     
     // MARK: - UICollectionView Delegate
     
-    fileprivate func selectRowAtIndexPath(_ indexPath: IndexPath, animated: Bool) {
+    open func selectColumnAtIndexPath(_ indexPath: IndexPath, animated: Bool, includeHeader: Bool = true) {
+        guard indexPath.sgRow >= 0,
+              indexPath.sgRow < numberOfRowsInSection(indexPath.sgSection) else {
+            return
+        }
+        
+        if includeHeader {
+            selectHeaderAtIndexPath(indexPath)
+        }
+        
+        for rowIndex in 0...(self.numberOfRowsInSection(indexPath.sgSection) - 1) {
+            let sgPath = IndexPath.init(forSGRow: rowIndex, atColumn: indexPath.sgColumn, inSection: indexPath.sgSection)
+            let itemPath = self.reverseIndexPathConversion(sgPath)
+            self.collectionView.selectItem(at: itemPath, animated: animated, scrollPosition: UICollectionView.ScrollPosition())
+        }
+    }
+    
+    open func selectRowAtIndexPath(_ indexPath: IndexPath, animated: Bool) {
+        
+        guard indexPath.sgRow >= 0,
+              indexPath.sgRow < self.numberOfRowsInSection(indexPath.sgSection) else {
+            return
+        }
+        
         for columnIndex in 0...self.sgColumnCount - 1 {
             let sgPath = IndexPath.init(forSGRow: indexPath.sgRow, atColumn: columnIndex, inSection: indexPath.sgSection)
             let itemPath = self.reverseIndexPathConversion(sgPath)
