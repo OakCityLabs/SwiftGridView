@@ -35,7 +35,7 @@ class SwiftGridViewTests: XCTestCase {
     }
     
     
-    // MARK: - SwiftGridCell 
+    // MARK: - SwiftGridCell
     
     func testSwiftGridCell() {
         XCTAssert(SwiftGridCell.reuseIdentifier() == "SwiftGridCellReuseId")
@@ -106,4 +106,155 @@ class SwiftGridViewTests: XCTestCase {
         XCTAssertEqual(indexPath.sgSection, 2)
     }
     
+    func testSelectionHeaderIndexPaths() {
+        let mockData = SGMockBasicDataSource()
+        let gridView = SwiftGridView()
+        gridView.dataSource = mockData
+        
+        XCTAssertTrue(gridView.selectedHeaderIndexPaths.isEmpty)
+        
+        let indexA = IndexPath(forSGRow: 0, atColumn: 1, inSection: 1)
+        let indexB = IndexPath(forSGRow: 0, atColumn: 5, inSection: 1)
+        let indexC = IndexPath(forSGRow: 3 , atColumn: 3, inSection: 1)
+        
+        gridView.selectHeaderAtIndexPath(indexA)
+        gridView.selectHeaderAtIndexPath(indexB)
+        gridView.selectHeaderAtIndexPath(indexC)
+        
+        XCTAssertEqual(Set(gridView.selectedHeaderIndexPaths),
+                       Set([indexA, indexB, indexC]))
+        
+        // bogus index
+        gridView.deselectHeaderAtIndexPath(.init(item: 9, section: 9))
+        
+        XCTAssertEqual(Set(gridView.selectedHeaderIndexPaths),
+                       Set([indexA, indexB, indexC]))
+        
+        gridView.deselectHeaderAtIndexPath(indexC)
+        gridView.deselectHeaderAtIndexPath(indexB)
+        XCTAssertEqual(gridView.selectedHeaderIndexPaths, [indexA])
+        
+        gridView.deselectHeaderAtIndexPath(indexA)
+        XCTAssertTrue(gridView.selectedHeaderIndexPaths.isEmpty)
+        
+        gridView.deselectHeaderAtIndexPath(indexA)
+        
+        XCTAssertTrue(gridView.selectedHeaderIndexPaths.isEmpty)
+        
+    }
+    
+    func testSelectColumn() {
+        let mockData = SGMockBasicDataSource()
+        let gridView = SwiftGridView()
+        gridView.dataSource = mockData
+        
+        XCTAssertTrue(gridView.selectedHeaderIndexPaths.isEmpty)
+        XCTAssertTrue((gridView.collectionView.indexPathsForSelectedItems ?? []).isEmpty)
+        
+        let bogusIndexA = IndexPath(forSGRow: -54, atColumn: 1, inSection: 1)
+        
+        let indexA = IndexPath(forSGRow: 0, atColumn: 1, inSection: 1)
+        let indexB = IndexPath(forSGRow: 0, atColumn: 2, inSection: 1)
+        
+        let bogusIndexB = IndexPath(forSGRow: 11, atColumn: 1, inSection: 1)
+        
+        let expectedRowCounts1 = mockData.rowCounts[indexA.sgSection]
+        XCTAssertEqual(expectedRowCounts1, 10)
+        
+        let expectedRowCounts2 = mockData.rowCounts[indexB.sgSection]
+        XCTAssertEqual(expectedRowCounts2, 10)
+        
+        gridView.selectColumnAtIndexPath(bogusIndexA, animated: false)
+        
+        XCTAssertTrue(gridView.selectedHeaderIndexPaths.isEmpty)
+        XCTAssertTrue((gridView.collectionView.indexPathsForSelectedItems ?? []).isEmpty)
+        
+        gridView.selectColumnAtIndexPath(bogusIndexB, animated: false)
+        
+        XCTAssertTrue(gridView.selectedHeaderIndexPaths.isEmpty)
+        XCTAssertTrue((gridView.collectionView.indexPathsForSelectedItems ?? []).isEmpty)
+        
+        gridView.selectColumnAtIndexPath(indexA, animated: false)
+        
+        XCTAssertEqual(gridView.selectedHeaderIndexPaths,
+                       [IndexPath(forSGRow: 0,
+                                  atColumn: indexA.sgColumn,
+                                  inSection: indexA.sgSection)] )
+
+        // -1 because one selection is of the header
+        XCTAssertEqual(gridView.indexPathsForSelectedItems.count, expectedRowCounts1 - 1)
+        
+        let expectedPathsA = (1..<10).map { IndexPath(forSGRow: $0, atColumn: indexA.sgColumn, inSection: indexA.sgSection) }
+        
+        XCTAssertEqual(Set(gridView.indexPathsForSelectedItems), Set(expectedPathsA))
+        
+        gridView.selectColumnAtIndexPath(indexB, animated: false, includeHeader: false)
+        
+        XCTAssertEqual(gridView.selectedHeaderIndexPaths,
+                       [IndexPath(forSGRow: 0,
+                                  atColumn: indexA.sgColumn,
+                                  inSection: indexA.sgSection)] )
+
+        // -1 for each header of the column that won't be included here
+        XCTAssertEqual(gridView.indexPathsForSelectedItems.count, expectedRowCounts1 + expectedRowCounts2 - 1 - 1)
+
+        
+        let expectedPathsB = (1..<10).map { IndexPath(forSGRow: $0, atColumn: indexB.sgColumn, inSection: indexB.sgSection) }
+
+        XCTAssertEqual(Set(gridView.indexPathsForSelectedItems), Set(expectedPathsA + expectedPathsB))
+        
+        gridView.selectColumnAtIndexPath(indexB, animated: false, includeHeader: true)
+        
+        XCTAssertEqual(Set(gridView.selectedHeaderIndexPaths),
+                       Set([IndexPath(forSGRow: 0,
+                                  atColumn: indexA.sgColumn,
+                                  inSection: indexA.sgSection),
+                        IndexPath(forSGRow: 0,
+                                   atColumn: indexB.sgColumn,
+                                   inSection: indexB.sgSection)
+                       ]))
+        
+        XCTAssertEqual(Set(gridView.indexPathsForSelectedItems), Set(expectedPathsA + expectedPathsB))
+
+        XCTAssertEqual(gridView.indexPathsForSelectedItems.count, expectedRowCounts1 + expectedRowCounts2 - 1 - 1)
+    }
+    
+    func testSelectRow() {
+        let mockData = SGMockBasicDataSource()
+        let gridView = SwiftGridView()
+        gridView.dataSource = mockData
+        
+        XCTAssertTrue(gridView.selectedHeaderIndexPaths.isEmpty)
+        XCTAssertTrue((gridView.collectionView.indexPathsForSelectedItems ?? []).isEmpty)
+        
+        let bogusIndexA = IndexPath(forSGRow: -1, atColumn: 1, inSection: 1)
+        let indexB = IndexPath(forSGRow: 0, atColumn: 1, inSection: 1)
+        let indexC = IndexPath(forSGRow: 1, atColumn: 2, inSection: 1)
+        let bogusIndexD = IndexPath(forSGRow: 45, atColumn: 2, inSection: 1)
+        
+        XCTAssertEqual(mockData.columns, 5)
+        
+        // NOTE: Collection view `selectItem(at:..) method selects at any given index
+        // doesn't matter if that index path exists or not...
+        // Extra check were put in manually to prevent bogus selections - SP 5/4/23
+        
+        gridView.selectRowAtIndexPath(bogusIndexA, animated: false)
+        XCTAssertEqual(gridView.collectionView.indexPathsForSelectedItems?.count, 0)
+        
+        gridView.selectRowAtIndexPath(indexB, animated: false)
+        XCTAssertEqual(gridView.collectionView.indexPathsForSelectedItems?.count, 5)
+        let expectedPaths1 = (0..<5).map { IndexPath(forSGRow: indexB.sgRow, atColumn: $0, inSection: indexB.sgSection) }
+        
+        XCTAssertEqual(Set(gridView.indexPathsForSelectedItems), Set(expectedPaths1))
+        
+        gridView.selectRowAtIndexPath(indexC, animated: false)
+        
+        let expectedPaths2 = (0..<5).map { IndexPath(forSGRow: indexC.sgRow, atColumn: $0, inSection: indexC.sgSection) }
+        XCTAssertEqual(gridView.collectionView.indexPathsForSelectedItems?.count, 10)
+        
+        XCTAssertEqual(Set(gridView.indexPathsForSelectedItems), Set(expectedPaths1 + expectedPaths2))
+        
+        gridView.selectRowAtIndexPath(bogusIndexD, animated: false)
+        XCTAssertEqual(gridView.collectionView.indexPathsForSelectedItems?.count, 10)
+    }
 }
