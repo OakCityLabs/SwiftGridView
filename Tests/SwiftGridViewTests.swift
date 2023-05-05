@@ -181,9 +181,10 @@ class SwiftGridViewTests: XCTestCase {
                                   atColumn: indexA.sgColumn,
                                   inSection: indexA.sgSection)] )
 
-        XCTAssertEqual(gridView.collectionView.indexPathsForSelectedItems?.count, expectedRowCounts1)
+        // -1 because one selection is of the header
+        XCTAssertEqual(gridView.indexPathsForSelectedItems.count, expectedRowCounts1 - 1)
         
-        let expectedPathsA = (0..<10).map { IndexPath(forSGRow: $0, atColumn: indexA.sgColumn, inSection: indexA.sgSection) }
+        let expectedPathsA = (1..<10).map { IndexPath(forSGRow: $0, atColumn: indexA.sgColumn, inSection: indexA.sgSection) }
         
         XCTAssertEqual(Set(gridView.indexPathsForSelectedItems), Set(expectedPathsA))
         
@@ -194,9 +195,11 @@ class SwiftGridViewTests: XCTestCase {
                                   atColumn: indexA.sgColumn,
                                   inSection: indexA.sgSection)] )
 
-        XCTAssertEqual(gridView.collectionView.indexPathsForSelectedItems?.count, expectedRowCounts1 + expectedRowCounts2)
+        // -1 for each header of the column that won't be included here
+        XCTAssertEqual(gridView.indexPathsForSelectedItems.count, expectedRowCounts1 + expectedRowCounts2 - 1 - 1)
+
         
-        let expectedPathsB = (0..<10).map { IndexPath(forSGRow: $0, atColumn: indexB.sgColumn, inSection: indexB.sgSection) }
+        let expectedPathsB = (1..<10).map { IndexPath(forSGRow: $0, atColumn: indexB.sgColumn, inSection: indexB.sgSection) }
 
         XCTAssertEqual(Set(gridView.indexPathsForSelectedItems), Set(expectedPathsA + expectedPathsB))
         
@@ -213,7 +216,7 @@ class SwiftGridViewTests: XCTestCase {
         
         XCTAssertEqual(Set(gridView.indexPathsForSelectedItems), Set(expectedPathsA + expectedPathsB))
 
-        XCTAssertEqual(gridView.collectionView.indexPathsForSelectedItems?.count, expectedRowCounts1 + expectedRowCounts2)
+        XCTAssertEqual(gridView.indexPathsForSelectedItems.count, expectedRowCounts1 + expectedRowCounts2 - 1 - 1)
     }
     
     func testSelectRow() {

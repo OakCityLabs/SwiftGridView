@@ -453,9 +453,9 @@ open class SwiftGridView : UIView, UICollectionViewDataSource, UICollectionViewD
         }
     }
     
-    // Will not include selected supplementary view sg index paths,
-    // only sg index paths of selected cells.
-    // Eg, no column headers, but yes row titles
+    // Probably won't include selected supplementary view sg index paths,
+    // Only SG Index paths of selected cells.
+    // Eg, no column headers, but yes row titles.
     @objc open var indexPathsForSelectedItems: [IndexPath] {
         get {
             var indexPaths = [IndexPath]()
@@ -1090,7 +1090,7 @@ open class SwiftGridView : UIView, UICollectionViewDataSource, UICollectionViewD
             selectHeaderAtIndexPath(indexPath)
         }
         
-        for rowIndex in 0...(self.numberOfRowsInSection(indexPath.sgSection) - 1) {
+        for rowIndex in 1...(self.numberOfRowsInSection(indexPath.sgSection) - 1) {
             let sgPath = IndexPath.init(forSGRow: rowIndex, atColumn: indexPath.sgColumn, inSection: indexPath.sgSection)
             let itemPath = self.reverseIndexPathConversion(sgPath)
             self.collectionView.selectItem(at: itemPath, animated: animated, scrollPosition: UICollectionView.ScrollPosition())
