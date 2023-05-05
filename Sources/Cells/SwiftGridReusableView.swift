@@ -73,6 +73,10 @@ open class SwiftGridReusableView: UICollectionReusableView {
     internal var elementKind: String = ""
     internal var indexPath:IndexPath = IndexPath.init() // TODO: Is there a better way to handle this?
     
+    /// Should be SG index path, but might be empty if
+    /// collection view hasn't loaded the view
+    var currentIndexPath: IndexPath { indexPath }
+    
     /// Views become highlighted when the user touches them.
     open var highlighted:Bool = false {
         didSet {

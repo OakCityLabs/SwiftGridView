@@ -626,7 +626,6 @@ open class SwiftGridView : UIView, UICollectionViewDataSource, UICollectionViewD
         }
     }
     
-    
     // MARK: - Private conversion Methods
     
     fileprivate func convertCVIndexPathToSGIndexPath(_ indexPath: IndexPath) -> IndexPath {
