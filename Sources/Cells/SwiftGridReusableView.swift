@@ -75,7 +75,7 @@ open class SwiftGridReusableView: UICollectionReusableView {
     
     /// Should be SG index path, but might be empty if
     /// collection view hasn't loaded the view
-    var currentIndexPath: IndexPath { indexPath }
+    open var currentIndexPath: IndexPath { indexPath }
     
     /// Views become highlighted when the user touches them.
     open var highlighted:Bool = false {
