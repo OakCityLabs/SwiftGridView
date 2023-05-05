@@ -321,7 +321,6 @@ open class SwiftGridView : UIView, UICollectionViewDataSource, UICollectionViewD
         }
     }
     
-    
     // MARK: - Public Methods
     
     /**
@@ -426,6 +425,16 @@ open class SwiftGridView : UIView, UICollectionViewDataSource, UICollectionViewD
         let cell = collectionView.cellForItem(at: revertedPath) as? SwiftGridCell
         
         return cell
+    }
+    
+    ///  Get the supplentary for the provided indexPath. Use to get headers, footer, etc.
+    /// - Parameters:
+    ///   - kind: type of view. See SwiftGridViewElementKind..
+    ///   - indexPath: index path where it might be
+    /// - Returns: The `SwiftGridReusableView` instance for the provided indexPath
+    @objc open func supplementaryView(ofElementKind kind: String, at indexPath: IndexPath) -> SwiftGridReusableView? {
+        let revertedPath = reverseIndexPathConversion(indexPath)
+        return collectionView.supplementaryView(forElementKind: kind, at: revertedPath) as? SwiftGridReusableView
     }
     
     /**
