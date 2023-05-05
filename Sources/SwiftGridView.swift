@@ -302,11 +302,11 @@ open class SwiftGridView : UIView, UICollectionViewDataSource, UICollectionViewD
     fileprivate var selectedFooters: NSMutableDictionary = NSMutableDictionary()
     
     open var selectedHeaderIndexPaths: [IndexPath] {
-        return selectedHeaders.allKeys.compactMap {
-            guard (selectedHeaders[$0] as? Bool) == true else {
+        return selectedHeaders.allKeys.compactMap { indexPath in
+            guard (selectedHeaders[indexPath] as? Bool) == true else {
                 return nil
             }
-            return $0 as? IndexPath
+            return indexPath as? IndexPath
         }
     }
     
@@ -457,14 +457,7 @@ open class SwiftGridView : UIView, UICollectionViewDataSource, UICollectionViewD
     // Only SG Index paths of selected cells.
     // Eg, no column headers, but yes row titles.
     @objc open var indexPathsForSelectedItems: [IndexPath] {
-        get {
-            var indexPaths = [IndexPath]()
-            for indexPath in self.collectionView.indexPathsForSelectedItems ?? [] {
-                let convertedPath = self.convertCVIndexPathToSGIndexPath(indexPath)
-                indexPaths.append(convertedPath)
-            }
-            return indexPaths
-        }
+        (collectionView.indexPathsForSelectedItems ?? []).map { convertCVIndexPathToSGIndexPath($0) }
     }
     
     // FIXME: Doesn't work as intended.
